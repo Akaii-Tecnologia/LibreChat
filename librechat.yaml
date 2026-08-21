@@ -1,0 +1,154 @@
+# =============================================================================
+# IA Soberana — Configuração do LibreChat
+# -----------------------------------------------------------------------------
+# Objetivo: usar o LibreChat como frontend/orquestrador de uma IA própria sem
+# expor ao usuário a infraestrutura (modelo, endpoint, MCP, parâmetros, etc.).
+#
+# Prioridade: configuração > ACL > pequena customização > backend > fork.
+# Este arquivo implementa TODA a parte que é possível resolver por configuração
+# oficial (librechat.yaml) nesta versão.
+#
+# Versionado contra: librechat.example.yaml (version: 1.3.13)
+# =============================================================================
+
+# Versão da configuração (obrigatória)
+version: 1.3.13
+
+# Cache
+cache: true
+
+# =============================================================================
+# INTERFACE — o que o usuário vê / pode fazer
+# =============================================================================
+interface:
+  # Mensagem de boas-vindas central (landing page)
+  customWelcome: 'Como posso ajudar?'
+
+  # ---- Ocultação de infraestrutura técnica ----
+  # Esconde completamente o seletor de modelo/endpoint (equivalente ao antigo
+  # `endpointsMenu: false`, que NÃO existe mais nesta versão). Com isso o menu
+  # de endpoints também desaparece, pois ele é acessado pelo seletor.
+  modelSelect: false
+  # Esconde o painel/botão de parâmetros (temperature, tokens, etc.)
+  parameters: false
+  # Esconde o menu de presets
+  presets: false
+  # Esconde o "multi-conversa" (comparação de respostas)
+  multiConvo: false
+  # Esconde o painel de marcadores
+  bookmarks: false
+  # Esconde memória persistente de usuário (recurso técnico)
+  memories: false
+  # Esconde o medidor de tokens/contexto usado na mensagem
+  contextUsage: false
+  # Esconde custo estimado (desligado por padrão; mantemos explícito)
+  contextCost: false
+
+  # ---- Ferramentas no chat normal ----
+  # Ferramentas de busca/execução ficam disponíveis SOMENTE via Agents oficiais.
+  # Esconde "executar código" do chat comum
+  runCode: false
+  # Esconde "busca na web" do chat comum
+  webSearch: false
+  # Esconde "busca em arquivos" como seleção do chat comum (Agents mantêm o
+  # recurso file_search via capability própria)
+  fileSearch: false
+  # Esconde citações de arquivos
+  fileCitations: false
+  # Marketplace (compra de Agents) desligado
+  marketplace:
+    use: false
+
+  # ---- Compartilhamento / people picker ----
+  # Bloqueia o seletor de pessoas/grupos/roles nos diálogos de compartilhamento
+  peoplePicker:
+    users: false
+    groups: false
+    roles: false
+
+  # ---- Prompts ----
+  # Usuários podem usar prompts oficiais, mas NÃO criar/compartilhar
+  prompts:
+    use: true
+    create: false
+    share: false
+    public: false
+
+  # ---- Agents ----
+  # Usuários podem USAR Agents oficiais, mas NÃO criar/compartilhar/públicos.
+  # (Isto é ACL: mapeia para as permissões AGENTS do papel USER.)
+  agents:
+    use: true
+    create: false
+    share: false
+    public: false
+
+  # ---- MCP ----
+  # MCP é capacidade da PLATAFORMA, não do usuário.
+  # use: false  -> esconde MCP do chat do usuário (dropdown some)
+  # create/share/public: false -> usuário não cria nem compartilha MCP
+  # ATENÇÃO (ver MD): a permissão MCP_SERVERS.USE é a MESMA que autoriza o uso
+  # de MCP por Agents. Com use:false, Agents também não conseguem executar MCP
+  # para esse usuário. "MCP somente para Agents" NÃO é possível só com config.
+  mcpServers:
+    use: false
+    create: false
+    share: false
+    public: false
+
+  # ---- Remote agents / skills ----
+  remoteAgents:
+    use: false
+    create: false
+    share: false
+    public: false
+  # Skills (recurso técnico) fora do MVP
+  skills:
+    use: false
+    create: false
+    share: false
+    public: false
+
+  # ---- Links compartilhados ----
+  # Usuários não podem criar/compartilhar conversas por link
+  sharedLinks:
+    create: false
+    share: false
+    public: false
+    snapshotFiles: false
+
+# =============================================================================
+# REGISTRATION — logins sociais
+# =============================================================================
+registration:
+  # Nenhum login social (env ALLOW_SOCIAL_LOGIN=false também bloqueia).
+  # Se quiser habilitar futuramente: socialLogins: ['github']
+  socialLogins: []
+
+# =============================================================================
+# ENDPOINTS
+# =============================================================================
+endpoints:
+  # Agents — desliga o Agent Builder (usuário não edita/cria Agents)
+  agents:
+    disableBuilder: true
+
+  # ÚNICO endpoint: DeepSeek V4 Flash (OpenAI-compatible).
+  # O usuário não vê e não consegue trocar porque:
+  #  1) interface.modelSelect: false esconde o seletor;
+  #  2) só este modelo existe (fetch: false), não há o que selecionar.
+  # Para "travar" de verdade é preciso também NÃO deixar outros endpoints
+  # registrados (veja .env: remover ANTHROPIC_API_KEY / GOOGLE_KEY).
+  custom:
+    - name: 'DeepSeek'
+      apiKey: '${DEEPSEEK_API_KEY}'
+      baseURL: 'https://api.deepseek.com/v1'
+      models:
+        default:
+          # CONFIRMAR o ID exato do modelo na API da DeepSeek (ex.: deepseek-v4-flash)
+          - 'deepseek-v4-flash'
+        fetch: false
+      titleConvo: true
+      titleModel: 'deepseek-v4-flash'
+      # Rótulo amigável exibido (não expõe nome técnico)
+      modelDisplayLabel: 'IA Soberana'
