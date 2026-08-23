@@ -3,7 +3,7 @@
 # Base node image
 FROM node:24.16.0-alpine AS node
 
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache 
 RUN apk add --no-cache jemalloc
 RUN apk add --no-cache python3 py3-pip uv
 
