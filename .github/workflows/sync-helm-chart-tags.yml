@@ -71,7 +71,7 @@ jobs:
           cd "$REPO_DIR"
           git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
           git -c credential.helper= \
-            -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" \
+            -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')" \
             fetch --prune --force --tags origin \
             "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}"
           git checkout --detach "$BASE_REF"
