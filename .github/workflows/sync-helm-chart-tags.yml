@@ -45,7 +45,7 @@ jobs:
       DEFAULT_BRANCH: main
       DISPATCH_WORKFLOW: helmcharts.yml
       GITHUB_SERVER_URL: ${{ github.server_url }}
-      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
       GITHUB_REPOSITORY: ${{ github.repository }}
       RELEASE_EXISTING_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_existing_tag || '' }}
       REPO_DIR: /tmp/librechat-sync
@@ -70,10 +70,6 @@ jobs:
           git -c "init.defaultBranch=$DEFAULT_BRANCH" init "$REPO_DIR"
           cd "$REPO_DIR"
           git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
-          if [[ -z "$GITHUB_TOKEN" ]]; then
-            echo "::error::PAT_TOKEN is empty or unavailable to this workflow."
-            exit 1
-          fi
           git -c credential.helper= \
             -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" \
             fetch --prune --force --tags origin \
@@ -83,7 +79,7 @@ jobs:
       - name: Create missing chart tags
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
           PUSH_TAGS: "true"
         run: |
           set -euo pipefail
