@@ -45,7 +45,7 @@ jobs:
       DEFAULT_BRANCH: main
       DISPATCH_WORKFLOW: helmcharts.yml
       GITHUB_SERVER_URL: ${{ github.server_url }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
       RELEASE_EXISTING_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_existing_tag || '' }}
       REPO_DIR: /tmp/librechat-sync
@@ -79,7 +79,7 @@ jobs:
       - name: Create missing chart tags
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
           PUSH_TAGS: "true"
         run: |
           set -euo pipefail
