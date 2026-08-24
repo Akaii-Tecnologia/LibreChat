@@ -24,6 +24,7 @@ WORKDIR /app
 
 USER node
 
+COPY --chown=node:node librechat.yaml /app/librechat.yaml
 COPY --chown=node:node package.json package-lock.json ./
 COPY --chown=node:node api/package.json ./api/package.json
 COPY --chown=node:node client/package.json ./client/package.json
