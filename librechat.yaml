@@ -91,7 +91,7 @@ interface:
   # de MCP por Agents. Com use:false, Agents também não conseguem executar MCP
   # para esse usuário. "MCP somente para Agents" NÃO é possível só com config.
   mcpServers:
-    use: false
+    use: true
     create: false
     share: false
     public: false
