@@ -67,9 +67,8 @@ jobs:
           fi
 
           rm -rf "$REPO_DIR"
-          git init "$REPO_DIR"
+          git -c "init.defaultBranch=$DEFAULT_BRANCH" init "$REPO_DIR"
           cd "$REPO_DIR"
-          git config init.defaultBranch "$DEFAULT_BRANCH"
           git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
           if [[ -z "$GITHUB_TOKEN" ]]; then
             echo "::error::PAT_TOKEN is empty or unavailable to this workflow."
