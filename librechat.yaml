@@ -152,3 +152,16 @@ endpoints:
       titleModel: 'deepseek-v4-flash'
       # Rótulo amigável exibido (não expõe nome técnico)
       modelDisplayLabel: 'IA Soberana'
+      
+# =============================================================================
+# MODELO PADRÃO
+# =============================================================================
+modelSpecs:
+  enforce: true
+  prioritize: true
+  list:
+    - name: 'ia-soberana'
+      label: 'IA Soberana'
+      preset:
+        endpoint: 'DeepSeek'
+        model: 'deepseek-v4-flash'
