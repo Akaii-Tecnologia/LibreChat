@@ -69,9 +69,14 @@ jobs:
           rm -rf "$REPO_DIR"
           git init "$REPO_DIR"
           cd "$REPO_DIR"
+          git config init.defaultBranch "$DEFAULT_BRANCH"
           git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
-          AUTH_HEADER="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
-          git -c "http.extraheader=AUTHORIZATION: basic ${AUTH_HEADER}" \
+          if [[ -z "$GITHUB_TOKEN" ]]; then
+            echo "::error::PAT_TOKEN is empty or unavailable to this workflow."
+            exit 1
+          fi
+          git -c credential.helper= \
+            -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" \
             fetch --prune --force --tags origin \
             "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}"
           git checkout --detach "$BASE_REF"
