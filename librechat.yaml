@@ -1,5 +1,5 @@
 # =============================================================================
-# IA Soberana — Configuração do LibreChat
+# Soberan.ia — Configuração do LibreChat
 # -----------------------------------------------------------------------------
 # Objetivo: usar o LibreChat como frontend/orquestrador de uma IA própria sem
 # expor ao usuário a infraestrutura (modelo, endpoint, MCP, parâmetros, etc.).
@@ -86,15 +86,15 @@ interface:
   # ---- MCP ----
   # MCP é capacidade da PLATAFORMA, não do usuário.
   # use: false  -> esconde MCP do chat do usuário (dropdown some)
-  # create/share/public: false -> usuário não cria nem compartilha MCP
+  # create/share/public NÃO são setados de propósito: caem nos defaults por role
+  # (roleDefaults) em vez de sobrescrever os dois roles ao mesmo tempo:
+  #   ADMIN: use=true, create=true, share=true, public=true   (libera tudo)
+  #   USER:  use=true, create=false, share=false, public=false (só usa)
   # ATENÇÃO (ver MD): a permissão MCP_SERVERS.USE é a MESMA que autoriza o uso
   # de MCP por Agents. Com use:false, Agents também não conseguem executar MCP
   # para esse usuário. "MCP somente para Agents" NÃO é possível só com config.
   mcpServers:
     use: true
-    create: false
-    share: false
-    public: false
 
   # ---- Remote agents / skills ----
   remoteAgents:
@@ -151,8 +151,8 @@ endpoints:
       titleConvo: true
       titleModel: 'deepseek-v4-flash'
       # Rótulo amigável exibido (não expõe nome técnico)
-      modelDisplayLabel: 'IA Soberana'
-      
+      modelDisplayLabel: 'Soberan.ia'
+
 # =============================================================================
 # MODELO PADRÃO
 # =============================================================================
@@ -161,7 +161,7 @@ modelSpecs:
   prioritize: true
   list:
     - name: 'ia-soberana'
-      label: 'IA Soberana'
+      label: 'Soberan.ia'
       preset:
         endpoint: 'DeepSeek'
         model: 'deepseek-v4-flash'

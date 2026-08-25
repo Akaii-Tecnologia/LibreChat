@@ -140,11 +140,11 @@ export default defineConfig(({ command }) => ({
       },
       includeAssets: [],
       manifest: {
-        name: 'LibreChat',
-        short_name: 'LibreChat',
+        name: 'Soberan.ia',
+        short_name: 'Soberan.ia',
         display: 'standalone',
         background_color: '#000000',
-        theme_color: '#009688',
+        theme_color: '#14b8a6',
         icons: [
           {
             src: 'assets/favicon-32x32.png',

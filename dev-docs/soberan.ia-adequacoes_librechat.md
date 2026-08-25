@@ -1,8 +1,8 @@
-# IA Soberana — Auditoria e Adaptação do LibreChat
+# Soberan.ia — Auditoria e Adaptação do LibreChat
 
 ## 1. Objetivo
 
-Avaliar o LibreChat como base da interface e camada de orquestração de uma plataforma de **IA Soberana**, priorizando o uso do LibreChat praticamente **vanilla**, evitando um fork pesado e difícil de manter.
+Avaliar o LibreChat como base da interface e camada de orquestração de uma plataforma de **Soberan.ia**, priorizando o uso do LibreChat praticamente **vanilla**, evitando um fork pesado e difícil de manter.
 
 O objetivo inicial é construir um MVP em que o usuário tenha uma experiência simples de chat com uma IA própria, sem precisar conhecer ou controlar a infraestrutura de IA existente por trás.
 
@@ -103,7 +103,7 @@ Exemplo conceitual:
 
 ```text
 ┌──────────────────────────────────────────────────────┐
-│ IA Soberana                                      👤  │
+│ Soberan.ia                                      👤  │
 ├──────────────────────────────────────────────────────┤
 │                                                      │
 │                 Como posso ajudar?                   │
@@ -608,7 +608,7 @@ LibreChat upstream
 nova versão
        │
        ▼
-configuração IA Soberana
+configuração Soberan.ia
 ```
 
 em vez de:
@@ -669,7 +669,7 @@ Agent de teste
 MCP de teste
 ```
 
-Não começar ainda pela infraestrutura definitiva da IA Soberana.
+Não começar ainda pela infraestrutura definitiva da Soberan.ia.
 
 ## Testes iniciais
 
@@ -770,12 +770,12 @@ O MVP não precisa ser perfeito.
 
 Queremos provar:
 
-> **É possível utilizar o LibreChat como frontend/orquestrador de uma IA soberana sem expor ao usuário a complexidade da infraestrutura e sem criar um fork pesado do projeto.**
+> **É possível utilizar o LibreChat como frontend/orquestrador de uma Soberan.ia sem expor ao usuário a complexidade da infraestrutura e sem criar um fork pesado do projeto.**
 
 Se a resposta for sim, a próxima etapa será integrar progressivamente:
 
 ```text
-                    IA SOBERANA
+                    Soberan.ia
                          │
                     LibreChat
                          │
@@ -835,7 +835,7 @@ E documentar cada alteração necessária, para que futuramente seja possível a
 
 ## 19.3 O que foi concluído via `.env`
 
-- ✅ `APP_TITLE=IA Soberana` (título exibido na UI/aba).
+- ✅ `APP_TITLE=Soberan.ia` (título exibido na UI/aba).
 - ✅ Endpoints desativados para restar **apenas DeepSeek**:
   `ANTHROPIC_API_KEY`/`GOOGLE_KEY` comentados; `DEEPSEEK_API_KEY=` aguardando chave.
 - ✅ `ALLOW_REGISTRATION=false` (usuários criados pelo admin — `config/create-user.js`).
