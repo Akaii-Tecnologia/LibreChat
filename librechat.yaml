@@ -165,3 +165,16 @@ modelSpecs:
       preset:
         endpoint: 'DeepSeek'
         model: 'deepseek-v4-flash'
+
+# =============================================================================
+# MCP — isenção SSRF para servidores MCP internos da plataforma
+# =============================================================================
+# A proteção SSRF padrão bloqueia IPs privados (ex.: 172.16.x.x) mesmo quando o
+# destino está na mesma máquina/rede do Docker. `allowedAddresses` isenta APENAS
+# o par host:porta listado (mantém destinos públicos acessíveis e o restante dos
+# IPs privados bloqueado). Prefira `allowedAddresses` a `allowedDomains`: este
+# último vira whitelist ESTRITA (todo destino precisaria ser listado).
+# Formato obrigatório: 'host:porta' ou '[ipv6]:porta' (sem URL, sem path).
+mcpSettings:
+  allowedAddresses:
+    - '172.16.30.163:6084'
