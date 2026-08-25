@@ -65,6 +65,11 @@ jobs:
         run: |
           cp .env.example .env
 
+      # GHCR requires lowercase repository names
+      - name: Lowercase repository owner
+        run: |
+          echo "GHCR_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
       # Build and push Docker images for each target
       - name: Build and push Docker images
         uses: docker/build-push-action@v7
@@ -73,8 +78,8 @@ jobs:
           file: ${{ matrix.file }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:${{ env.LATEST_TAG }}
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:latest
+            ghcr.io/${{ env.GHCR_OWNER }}/${{ matrix.image_name }}:${{ env.LATEST_TAG }}
+            ghcr.io/${{ env.GHCR_OWNER }}/${{ matrix.image_name }}:latest
           platforms: linux/amd64,linux/arm64
           target: ${{ matrix.target }}
           build-args: |
