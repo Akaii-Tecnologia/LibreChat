@@ -192,3 +192,4 @@ mcpServers:
 mcpSettings:
   allowedAddresses:
     - '172.16.30.163:6084'
+    - '172.16.30.163:8548'
