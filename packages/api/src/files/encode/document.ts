@@ -1,5 +1,6 @@
 import { Providers } from '@librechat/agents';
 import {
+  EModelEndpoint,
   isOpenAILikeProvider,
   isBedrockDocumentType,
   bedrockDocumentFormats,
@@ -44,11 +45,31 @@ function getAnthropicDocumentSource(
 }
 
 /**
+ * Builds a valid OpenAI `file_data` data URL for a base64-encoded document.
+ *
+ * OpenAI rejects `file`/`input_file` content parts whose `file_data` is missing
+ * or malformed with `400 .messages[0]: file must have a file_id or file_data`,
+ * so a block must never be emitted with an empty MIME type or empty payload.
+ * Returns `null` when a well-formed data URL cannot be constructed; callers
+ * then skip the file instead of bricking the whole request.
+ */
+function buildOpenAIFileDataUrl(mimeType: string, content: string): string | null {
+  const normalized = mimeType.split(';')[0].trim();
+  if (!normalized || !/^[\w.+-]+\/[\w.+-]+$/.test(normalized)) {
+    return null;
+  }
+  if (typeof content !== 'string' || content.length === 0) {
+    return null;
+  }
+  return `data:${normalized};base64,${content}`;
+}
+
+/**
  * Formats a base64-encoded document into the appropriate provider-specific block.
  * Returns `null` when the provider has no matching handler.
  */
 function formatDocumentBlock(
-  provider: Providers,
+  provider: string,
   mimeType: string,
   content: string,
   filename: string | undefined,
@@ -84,19 +105,35 @@ function formatDocumentBlock(
   const resolvedFilename = filename ?? 'document';
 
   if (useResponsesApi) {
+    const fileData = buildOpenAIFileDataUrl(mimeType, content);
+    if (fileData == null) {
+      return null;
+    }
     return {
       type: 'input_file',
       filename: resolvedFilename,
-      file_data: `data:${mimeType};base64,${content}`,
+      file_data: fileData,
     };
   }
 
   if (isOpenAILikeProvider(provider) && provider !== Providers.AZURE) {
+    /** Custom OpenAI-compatible endpoints and DeepSeek implement only a subset
+     *  of OpenAI's chat schema and reject the `file` content part with
+     *  `400 .messages[0]: file must have a file_id or file_data`. Only genuine
+     *  OpenAI guarantees the inline `file_data` part, so these providers fall
+     *  back to text/context file handling instead of bricking the request. */
+    if (provider === EModelEndpoint.custom || provider === Providers.DEEPSEEK) {
+      return null;
+    }
+    const fileData = buildOpenAIFileDataUrl(mimeType, content);
+    if (fileData == null) {
+      return null;
+    }
     return {
       type: 'file',
       file: {
         filename: resolvedFilename,
-        file_data: `data:${mimeType};base64,${content}`,
+        file_data: fileData,
       },
     };
   }

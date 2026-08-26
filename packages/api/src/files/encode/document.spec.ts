@@ -1054,6 +1054,32 @@ describe('encodeAndFormatDocuments - fileConfig integration', () => {
       expect(result.files).toHaveLength(1);
     });
 
+    it.each([
+      ['custom endpoints', 'custom' as Providers],
+      ['DeepSeek', Providers.DEEPSEEK],
+    ])('should not emit OpenAI file blocks for %s', async (_label, provider) => {
+      const req = createMockRequest(15) as ServerRequest;
+      const file = createMockDocFile(1, 'application/pdf', 'report.pdf');
+
+      const mockContent = Buffer.from('pdf-content').toString('base64');
+      mockedGetFileStream.mockResolvedValue({
+        file,
+        content: mockContent,
+        metadata: file,
+      });
+      mockedValidatePdf.mockResolvedValue({ isValid: true });
+
+      const result = await encodeAndFormatDocuments(
+        req,
+        [file],
+        { provider },
+        mockStrategyFunctions,
+      );
+
+      expect(result.documents).toHaveLength(0);
+      expect(result.files).toHaveLength(0);
+    });
+
     it('should skip non-Bedrock-document types for Bedrock provider', async () => {
       const req = createMockRequest() as ServerRequest;
       const file = createMockDocFile(1, 'application/zip', 'archive.zip');
