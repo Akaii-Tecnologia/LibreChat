@@ -167,6 +167,20 @@ modelSpecs:
         model: 'deepseek-v4-flash'
 
 # =============================================================================
+# MCP — servidores MCP globais (disponíveis para TODOS os usuários)
+# =============================================================================
+# Servidores definidos aqui são carregados no boot como servidores de origem
+# "yaml" (definidos pelo operador, confiança total) e aparecem no menu MCP de
+# todos os usuários — sem necessidade de cadastro individual.
+# Formato: <nome-do-servidor>:
+#   type: streamable-http   (ou sse / stdio / ws)
+#   url:  <endpoint MCP>
+mcpServers:
+  docs-telebras:
+    type: streamable-http
+    url: 'http://172.16.30.163:6084/mcp'
+
+# =============================================================================
 # MCP — isenção SSRF para servidores MCP internos da plataforma
 # =============================================================================
 # A proteção SSRF padrão bloqueia IPs privados (ex.: 172.16.x.x) mesmo quando o
