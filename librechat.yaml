@@ -179,15 +179,15 @@ mcpServers:
   docs-telebras:
     type: streamable-http
     url: 'http://172.16.30.163:6084/mcp'
-    displayName: 'Acervo de documentos'
+    title: 'Acervo de documentos'
     description: 'Acervo de documentos institucionais da Telebras, responsável pelo armazenamento, organização e consulta de documentos, modelos, referências e conteúdos utilizados como base para a elaboração e atualização da documentação institucional.'
-    icon: '/assets/mcp-acervo-doc.png'
+    iconPath: '/assets/mcp-acervo-doc.png'
   criar-documento:
     type: streamable-http
     url: 'http://172.16.30.163:8548/mcp'
-    displayName: 'Criar Documento'
+    title: 'Criar Documento'
     description: 'Ferramenta para criação e estruturação de documentos institucionais nos padrões definidos pela Telebras, permitindo à IA elaborar Termos de Referência (TR), Análises de Risco (AR), Editais, Ofícios e outros documentos, a partir de modelos, regras e informações fornecidas.'
-    icon: '/assets/mcp-criar-doc.png'
+    iconPath: '/assets/mcp-criar-doc.png'
 
 # =============================================================================
 # MCP — isenção SSRF para servidores MCP internos da plataforma
