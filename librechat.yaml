@@ -118,6 +118,21 @@ interface:
     snapshotFiles: false
 
 # =============================================================================
+# FILE CONFIG — upload de arquivos
+# =============================================================================
+# Restringe os tipos de arquivo aceitos no upload (client + servidor + seletor
+# de arquivos). Por enquanto apenas documentos: .docx, .pdf e .txt.
+# Para liberar mais tipos depois, basta ajustar os padrões em
+# `endpoints.default.supportedMimeTypes` (regex de MIME type).
+fileConfig:
+  endpoints:
+    default:
+      supportedMimeTypes:
+        - "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        - "application/pdf"
+        - "text/plain"
+
+# =============================================================================
 # REGISTRATION — logins sociais
 # =============================================================================
 registration:
@@ -150,6 +165,15 @@ endpoints:
         fetch: false
       titleConvo: true
       titleModel: 'deepseek-v4-flash'
+      # Gera o título no MESMO idioma em que o usuário escreve (pt-BR).
+      # O prompt padrão do método "completion" não detecta idioma e devolve
+      # títulos em inglês. O placeholder {convo} é obrigatório — é onde a
+      # conversa é injetada.
+      titlePrompt: |-
+        Analise a conversa abaixo e forneça um título conciso (5 palavras ou menos, sem pontuação ou aspas) no MESMO idioma em que o usuário escreveu (geralmente português). Retorne apenas o título.
+
+        Conversa:
+        {convo}
       # Rótulo amigável exibido (não expõe nome técnico)
       modelDisplayLabel: 'Soberan.ia'
 
