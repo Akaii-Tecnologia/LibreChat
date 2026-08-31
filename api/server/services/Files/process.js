@@ -670,7 +670,7 @@ const processFileUpload = async ({ req, res, metadata, sseStream }) => {
 const processAgentFileUpload = async ({ req, res, metadata, sseStream }) => {
   const { file } = req;
   const appConfig = req.config;
-  const { agent_id, tool_resource, file_id, temp_file_id = null } = metadata;
+  let { agent_id, tool_resource, file_id, temp_file_id = null } = metadata;
 
   let messageAttachment = !!metadata.message_file;
 
@@ -687,6 +687,24 @@ const processAgentFileUpload = async ({ req, res, metadata, sseStream }) => {
   }
 
   const isImage = file.mimetype.startsWith('image');
+  /* Default message attachments (the plain "Attach Files" picker, no explicit
+   * tool resource) are documents the user wants the model to read. Custom
+   * OpenAI-compatible endpoints (e.g. DeepSeek) reject `file` content blocks,
+   * so route text-like and document-parser MIME types through the `context`
+   * pipeline: extract text (parseText/document parser) and persist it as
+   * `FileSources.text` so `extractFileContext` inlines it into the prompt.
+   * Media (image/audio/video), explicit tool-resource uploads, and agent setup
+   * files keep their existing paths. */
+  const isTextFile = file.mimetype?.startsWith('text/');
+  const isDocumentParserEligible = documentParserMimeTypes.some((regex) =>
+    regex.test(file.mimetype),
+  );
+  const autoExtractAsContext =
+    messageAttachment && !tool_resource && !isImage && (isTextFile || isDocumentParserEligible);
+
+  if (autoExtractAsContext) {
+    tool_resource = EToolResources.context;
+  }
   let fileInfoMetadata;
   const entity_id = messageAttachment === true ? undefined : agent_id;
   const basePath = mime.getType(file.originalname)?.startsWith('image') ? 'images' : 'uploads';

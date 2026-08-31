@@ -400,6 +400,79 @@ describe('processAgentFileUpload', () => {
     });
   });
 
+  describe('default message attachments (no tool resource) auto-route to text extraction', () => {
+    const messageFileMetadata = {
+      file_id: 'file-uuid-123',
+      agent_id: undefined,
+      tool_resource: undefined,
+      message_file: true,
+    };
+
+    test('extracts text/plain attachments through parseText and persists as FileSources.text', async () => {
+      mergeFileConfig.mockReturnValue(makeFileConfig({ textSupportedMimeTypes: ['text/plain'] }));
+      const { parseText } = require('@librechat/api');
+      parseText.mockResolvedValueOnce({ text: 'hello world', bytes: 11 });
+      const req = makeReq({ mimetype: 'text/plain', ocrConfig: null });
+
+      await processAgentFileUpload({ req, res: mockRes, metadata: messageFileMetadata });
+
+      expect(parseText).toHaveBeenCalled();
+      expect(db.createFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          source: FileSources.text,
+          text: 'hello world',
+          type: 'text/plain',
+          context: FileContext.message_attachment,
+        }),
+        true,
+      );
+      expect(db.addAgentResourceFile).not.toHaveBeenCalled();
+    });
+
+    test('routes PDF message attachments through the document parser', async () => {
+      const req = makeReq({ mimetype: PDF_MIME, ocrConfig: null });
+
+      await processAgentFileUpload({ req, res: mockRes, metadata: messageFileMetadata });
+
+      expect(getStrategyFunctions).toHaveBeenCalledWith(FileSources.document_parser);
+      expect(db.createFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          source: FileSources.text,
+          text: 'extracted text',
+          context: FileContext.message_attachment,
+        }),
+        true,
+      );
+    });
+
+    test('leaves non-text binary message attachments on the standard storage path', async () => {
+      setupStoredFileUpload();
+      const req = makeReq({ mimetype: 'application/zip', ocrConfig: null });
+      const { parseText } = require('@librechat/api');
+
+      await processAgentFileUpload({ req, res: mockRes, metadata: messageFileMetadata });
+
+      expect(parseText).not.toHaveBeenCalled();
+      expect(getStrategyFunctions).toHaveBeenCalledWith(FileSources.local);
+      expect(db.createFile).toHaveBeenCalledWith(
+        expect.objectContaining({ source: FileSources.local }),
+        true,
+      );
+    });
+
+    test('does not override an explicitly chosen tool resource', async () => {
+      setupStoredFileUpload();
+      const req = makeReq({ mimetype: 'text/plain', ocrConfig: null });
+      const { parseText } = require('@librechat/api');
+      const metadata = { ...messageFileMetadata, tool_resource: EToolResources.file_search };
+
+      await processAgentFileUpload({ req, res: mockRes, metadata });
+
+      expect(parseText).not.toHaveBeenCalled();
+      expect(uploadVectors).toHaveBeenCalled();
+    });
+  });
+
   describe('configured text (RAG) routing for document MIME types', () => {
     const DOCX_TEXT_REGEX = [
       /^application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document$/,
