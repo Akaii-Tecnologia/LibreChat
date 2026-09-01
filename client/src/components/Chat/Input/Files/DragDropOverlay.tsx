@@ -1,4 +1,11 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+import {
+  mergeFileConfig,
+  getEndpointFileConfig,
+  getSupportedFileTypesLabel,
+} from 'librechat-data-provider';
+import { useGetFileConfig } from '~/data-provider';
+import { useDragDropContext } from '~/Providers';
 import { useLocalize } from '~/hooks';
 
 interface DragDropOverlayProps {
@@ -7,6 +14,15 @@ interface DragDropOverlayProps {
 
 const DragDropOverlay = memo(({ isActive }: DragDropOverlayProps) => {
   const localize = useLocalize();
+  const { endpoint, endpointType } = useDragDropContext();
+  const { data: fileConfig = null } = useGetFileConfig({
+    select: (data) => mergeFileConfig(data),
+  });
+  const supportedFileTypes = useMemo(() => {
+    const endpointFileConfig = getEndpointFileConfig({ fileConfig, endpoint, endpointType });
+    return getSupportedFileTypesLabel(endpointFileConfig?.supportedMimeTypes);
+  }, [fileConfig, endpoint, endpointType]);
+
   return (
     <>
       {/** Modal backdrop overlay */}
@@ -91,6 +107,11 @@ const DragDropOverlay = memo(({ isActive }: DragDropOverlayProps) => {
           </svg>
           <h3 className="mt-4 text-lg font-semibold">{localize('com_ui_upload_files')}</h3>
           <h4 className="text-sm text-text-secondary">{localize('com_ui_drag_drop')}</h4>
+          {supportedFileTypes !== '' && (
+            <p className="mt-1 text-xs text-text-secondary">
+              {localize('com_ui_upload_supported_types', { types: supportedFileTypes })}
+            </p>
+          )}
         </div>
       </div>
     </>

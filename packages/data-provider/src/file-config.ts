@@ -832,6 +832,41 @@ export const getConfiguredMimeAccept = (
 };
 
 /**
+ * Formats a finite MIME allowlist into a compact, human-readable list of extensions/tokens
+ * (e.g. ".docx, .pdf, .txt") for upload-UI hints. Returns an empty string when the allowlist
+ * is unset, permissive, or matches nothing representable, so callers can hide the hint.
+ */
+export const getSupportedFileTypesLabel = (types?: RegexLike[]): string => {
+  if (!types || types.length === 0 || isPermissiveMimeConfig(types)) {
+    return '';
+  }
+
+  const tokens: string[] = [];
+  const seen = new Set<string>();
+  const push = (token: string): void => {
+    if (!seen.has(token)) {
+      seen.add(token);
+      tokens.push(token);
+    }
+  };
+
+  for (const regex of types) {
+    for (const [mimeType, extensions] of documentMimeExtensions) {
+      if (regex.test(mimeType)) {
+        extensions.forEach(push);
+      }
+    }
+    for (const category of mimeAcceptCategories) {
+      if (category.samples.some((mimeType) => regex.test(mimeType))) {
+        push(category.token);
+      }
+    }
+  }
+
+  return tokens.join(', ');
+};
+
+/**
  * Gets the appropriate endpoint file configuration with standardized lookup logic.
  *
  * @param params - Object containing fileConfig, endpoint, and optional conversationEndpoint

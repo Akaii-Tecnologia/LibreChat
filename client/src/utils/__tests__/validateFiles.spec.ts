@@ -186,3 +186,44 @@ describe('validateFiles', () => {
     expect(setError).toHaveBeenCalledWith('File limit reached: 1 files');
   });
 });
+
+describe('validateFiles with restricted supportedMimeTypes (docx/pdf/txt)', () => {
+  const restrictedMimeTypes = [
+    /^application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document$/,
+    /^application\/pdf$/,
+    /^text\/plain$/,
+  ];
+
+  let setError: jest.Mock;
+  let files: Map<string, ExtendedFile>;
+  let endpointFileConfig: EndpointFileConfig;
+  const fileConfig: FileConfig | null = null;
+
+  beforeEach(() => {
+    setError = jest.fn();
+    files = new Map();
+    endpointFileConfig = makeEndpointConfig({ supportedMimeTypes: restrictedMimeTypes });
+  });
+
+  it.each([
+    ['report.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    ['doc.pdf', 'application/pdf'],
+    ['notes.txt', 'text/plain'],
+  ])('allows %s', (name, type) => {
+    const fileList = [makeFile(name, type, 1024)];
+    const result = validateFiles({ files, fileList, setError, endpointFileConfig, fileConfig });
+    expect(result).toBe(true);
+    expect(setError).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['photo.png', 'image/png'],
+    ['audio.mp3', 'audio/mpeg'],
+    ['sheet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  ])('rejects %s', (name, type) => {
+    const fileList = [makeFile(name, type, 1024)];
+    const result = validateFiles({ files, fileList, setError, endpointFileConfig, fileConfig });
+    expect(result).toBe(false);
+    expect(setError).toHaveBeenCalledWith(`Unsupported file type: ${type}`);
+  });
+});

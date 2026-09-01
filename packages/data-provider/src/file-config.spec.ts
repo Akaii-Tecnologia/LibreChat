@@ -11,6 +11,7 @@ import {
   setFileConfigRegexCompiler,
   documentParserMimeTypes,
   getEndpointFileConfig,
+  getSupportedFileTypesLabel,
   applicationMimeTypes,
   defaultOCRMimeTypes,
   supportedMimeTypes,
@@ -1646,5 +1647,52 @@ describe('setFileConfigRegexCompiler (MIME pattern compiler seam)', () => {
     expect(compiled).toHaveLength(1);
     expect(compiled[0].test('application/pdf')).toBe(false);
     expect(compiled[0].test('anything')).toBe(false);
+  });
+});
+
+describe('getSupportedFileTypesLabel', () => {
+  const docxPdfTxt = [
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/pdf',
+    'text/plain',
+  ];
+
+  it('formats a restricted docx/pdf/txt allowlist', () => {
+    const types = docxPdfTxt.map((pattern) => new RegExp(pattern));
+    expect(getSupportedFileTypesLabel(types)).toBe('.docx, .pdf, .txt');
+  });
+
+  it('returns an empty string for an unset or empty allowlist', () => {
+    expect(getSupportedFileTypesLabel()).toBe('');
+    expect(getSupportedFileTypesLabel([])).toBe('');
+  });
+
+  it('returns an empty string for a permissive allowlist', () => {
+    expect(getSupportedFileTypesLabel([/.*/])).toBe('');
+  });
+
+  it('returns a wildcard token for media categories', () => {
+    expect(getSupportedFileTypesLabel([/^image\/(jpeg|png)$/])).toBe('image/*');
+  });
+
+  it('returns an empty string when nothing is representable', () => {
+    expect(getSupportedFileTypesLabel([/^application\/x-unknown$/])).toBe('');
+  });
+
+  it('deduplicates extensions matched by multiple patterns', () => {
+    const types = [/^application\/pdf$/, /^application\/(pdf|msword)$/];
+    expect(getSupportedFileTypesLabel(types)).toBe('.pdf, .doc');
+  });
+
+  it('integrates with mergeFileConfig for the default endpoint', () => {
+    const fileConfig = mergeFileConfig({
+      endpoints: {
+        default: { supportedMimeTypes: docxPdfTxt },
+      },
+    });
+    const endpointFileConfig = getEndpointFileConfig({ fileConfig, endpoint: 'openAI' });
+    expect(getSupportedFileTypesLabel(endpointFileConfig?.supportedMimeTypes)).toBe(
+      '.docx, .pdf, .txt',
+    );
   });
 });
