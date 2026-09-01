@@ -226,3 +226,15 @@ mcpSettings:
   allowedAddresses:
     - '172.16.30.163:6084'
     - '172.16.30.163:8548'
+
+# =============================================================================
+# SPEECH — voz e microfone
+# =============================================================================
+# Desabilita o botão de microfone (speech-to-text) na tela de chat.
+# `speechTab.speechToText: false` define o valor inicial como desligado para
+# usuários que nunca tocaram nessa opção no navegador. Usuários que já ativaram
+# antes mantêm a escolha salva no localStorage, e a opção continua disponível em
+# Configurações → Fala.
+speech:
+  speechTab:
+    speechToText: false

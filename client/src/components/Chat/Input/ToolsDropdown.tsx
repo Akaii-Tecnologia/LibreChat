@@ -5,7 +5,6 @@ import { Brain, Globe, ScrollText, Settings, Settings2, TerminalSquareIcon } fro
 import {
   AuthType,
   Permissions,
-  ArtifactModes,
   PermissionTypes,
   defaultAgentCapabilities,
 } from 'librechat-data-provider';
@@ -17,7 +16,6 @@ import {
   useHasMemoryAccess,
   useAgentCapabilities,
 } from '~/hooks';
-import ArtifactsSubMenu from '~/components/Chat/Input/ArtifactsSubMenu';
 import MCPSubMenu from '~/components/Chat/Input/MCPSubMenu';
 import { useGetStartupConfig } from '~/data-provider';
 import { useBadgeRowContext } from '~/Providers';
@@ -37,7 +35,6 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     codeEnabled,
     memoryEnabled,
     webSearchEnabled,
-    artifactsEnabled,
     fileSearchEnabled,
     skillsEnabled,
   } = useAgentCapabilities(context?.agentsConfig?.capabilities ?? defaultAgentCapabilities);
@@ -76,7 +73,6 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     skills,
     memory,
     webSearch,
-    artifacts,
     fileSearch,
     mcpServerManager,
     codeInterpreter,
@@ -92,7 +88,6 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
   } = webSearch ?? {};
   const { isPinned: isCodePinned, setIsPinned: setIsCodePinned } = codeInterpreter ?? {};
   const { isPinned: isFileSearchPinned, setIsPinned: setIsFileSearchPinned } = fileSearch ?? {};
-  const { isPinned: isArtifactsPinned, setIsPinned: setIsArtifactsPinned } = artifacts ?? {};
   const { isPinned: isSkillsPinned, setIsPinned: setIsSkillsPinned } = skills ?? {};
   const { isPinned: isMemoryPinned, setIsPinned: setIsMemoryPinned } = memory ?? {};
 
@@ -116,33 +111,6 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     const newValue = !fileSearch?.toggleState;
     fileSearch?.debouncedChange({ value: newValue });
   }, [fileSearch]);
-
-  const handleArtifactsToggle = useCallback(() => {
-    const currentState = artifacts?.toggleState;
-    if (!currentState || currentState === '') {
-      artifacts?.debouncedChange({ value: ArtifactModes.DEFAULT });
-    } else {
-      artifacts?.debouncedChange({ value: '' });
-    }
-  }, [artifacts]);
-
-  const handleShadcnToggle = useCallback(() => {
-    const currentState = artifacts?.toggleState;
-    if (currentState === ArtifactModes.SHADCNUI) {
-      artifacts?.debouncedChange({ value: ArtifactModes.DEFAULT });
-    } else {
-      artifacts?.debouncedChange({ value: ArtifactModes.SHADCNUI });
-    }
-  }, [artifacts]);
-
-  const handleCustomToggle = useCallback(() => {
-    const currentState = artifacts?.toggleState;
-    if (currentState === ArtifactModes.CUSTOM) {
-      artifacts?.debouncedChange({ value: ArtifactModes.DEFAULT });
-    } else {
-      artifacts?.debouncedChange({ value: ArtifactModes.CUSTOM });
-    }
-  }, [artifacts]);
 
   const handleSkillsToggle = useCallback(() => {
     const newValue = !skills?.toggleState;
@@ -338,23 +306,6 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
             </button>
           </div>
         </div>
-      ),
-    });
-  }
-
-  if (artifactsEnabled && setIsArtifactsPinned != null) {
-    dropdownItems.push({
-      hideOnClick: false,
-      render: (props) => (
-        <ArtifactsSubMenu
-          {...props}
-          isArtifactsPinned={isArtifactsPinned ?? false}
-          setIsArtifactsPinned={setIsArtifactsPinned}
-          artifactsMode={artifacts?.toggleState as string}
-          handleArtifactsToggle={handleArtifactsToggle}
-          handleShadcnToggle={handleShadcnToggle}
-          handleCustomToggle={handleCustomToggle}
-        />
       ),
     });
   }
